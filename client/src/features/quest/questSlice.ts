@@ -13,27 +13,18 @@ const initialState: QuestState = {
     task: [
         {
             name: 'Call mom',
-            completed: false,
-            next: [{
-                name: 'Get apple',
-                completed: false
-            },
-            {
-                name: 'Get butter',
-                completed: false
-            }]
-        },
-        {
-            name: 'Call dad',
-            completed: false,
-            next: [{
-                name: 'Fix car',
-                completed: false
-            }]
+            completed: false
+        }, {
+            name: 'Walk to walmart',
+            completed: false
+        }, {
+            name: 'get run back with bart',
+            completed: false
         }
     ],
     archived: false
 }
+
 
 export const questSlice = createSlice({
     name: 'quest',
@@ -41,11 +32,17 @@ export const questSlice = createSlice({
     reducers: {
         changeTitle: (state, action: PayloadAction<string>) => {
             state.title = action.payload
+        },
+        changeTasks: (state, action: PayloadAction<Array<Task>>) => {
+            state.task = action.payload
+        },
+        changeTask: (state, action: PayloadAction<{ num: number, task: Task }>) => {
+            state.task[action.payload.num] = action.payload.task;
         }
     }
 })
 
-export const { changeTitle } = questSlice.actions;
+export const { changeTitle, changeTasks, changeTask } = questSlice.actions;
 
 export const selectTitle = (state: RootState): string => state.quest.title;
 export const selectTask = (i: number) => (state: RootState): Task => state.quest.task[i];
