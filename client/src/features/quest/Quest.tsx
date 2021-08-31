@@ -6,7 +6,6 @@ import {
 
 } from './questSlice';
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { AppDispatch } from "../../app/store";
 
 export function Quest() {
     const title = useAppSelector(selectTitle);
