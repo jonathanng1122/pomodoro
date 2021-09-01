@@ -4,6 +4,9 @@ const UserSchema = mongoose.Schema({
     email: {
         type: String,
         required: true
+    },
+    timer: {
+        type: mongoose.Schema.Types.ObjectId,
     }
 })
 

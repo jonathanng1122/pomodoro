@@ -23,27 +23,29 @@ Interval
 Day
 {
     total: string
+    start: Time
+    end: Time //This may seem redundant but it handles the case where you switch timezones
     intervals: [Interval, ...]
-}
-
-Week
-{
-    total: string
-    days: [Day, ...]
-}
-Year
-{
-    total: string,
-    weeks: [Week, ...]
 }
 
 Pomodoro
 {
-    intervals: [Intervals ids]
+    currentDay: Day
+    startOfDay: Time
+    timeZone: TimeZone
+    days: [Day, ... ]
 }
+//startOfDay and timeZone are used to calculate the start day
+
+{
+    Day1: {
+
+    }
+}
+
 
 User
 {
     email: string
-    pomodoro: 
+    pomodoro: Pomodoro.id
 }
