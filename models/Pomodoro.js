@@ -33,7 +33,7 @@ const DaySchema = Schema({
 
 const PomodoroSchema = Schema({
     total: {
-        type: String
+        type: Number
     },
     startOfDay: {
         type: Number, //
@@ -44,8 +44,8 @@ const PomodoroSchema = Schema({
     timezoneOffset: {//getTimezoneOffset
         type: Number,
         required: true,
-        min: 0,
-        max: 24
+        min: -11,
+        max: 12
     },
     currentDay: DaySchema,
     days: [DaySchema]
