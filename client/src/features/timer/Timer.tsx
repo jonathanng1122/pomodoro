@@ -4,13 +4,15 @@ import {
     endTimer,
     cancelTimer,
     selectTotal,
-    selectCurrentInterval
+    selectCurrentInterval,
+    selectOldIntervals
 } from './timerSlice';
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 
 export function Timer() {
     const total = useAppSelector(selectTotal);
     const currentInterval = useAppSelector(selectCurrentInterval);
+    const oldIntervals = useAppSelector(selectOldIntervals);
     //TODO: currentLength
     const [currentLength, setCurrentLength] = useState(0);
 
@@ -42,6 +44,17 @@ export function Timer() {
                     <div>start: {currentInterval ? currentInterval.start : 'null'}</div>
                     <div>end: {currentInterval ? currentInterval.end : 'null'}</div>
                 </div>
+            })()}
+            {(() => {
+                return oldIntervals.map(interval => {
+                    const start = new Date(interval.start);
+                    if (interval.end) {
+                        const end = new Date(interval.end);
+                        return <div key={start.toString()}>{start.getHours()}:{start.getMinutes()} to {end.getHours()}:{end.getMinutes()} </div>
+                    } else {
+                        return <div key={start.toString()}></div>
+                    }
+                }).reverse()
             })()}
         </div>
     )

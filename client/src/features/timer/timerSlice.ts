@@ -29,7 +29,7 @@ export const timerSlice = createSlice({
         },
         endTimer: (state) => {
             if (!state.currentInterval) {
-                throw Error('Can not start timer due to an existing interval already started')
+                throw Error('Can not end timer due to an nonexisting currentInterval')
             }
             const start = state.currentInterval.start;
             const end = Date.now();
