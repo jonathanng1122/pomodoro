@@ -4,7 +4,8 @@ const app = express();
 const port = 5000 || process.env.PORT;
 const {MONGODB_URI} = require('./config.js')
 
-app.use('/api/users', require("./routes/users.js"))
+app.use('/api/users', require("./routes/UserRoutes.js"))
+app.use('/api/intervals', require("./routes/IntervalRoutes.js"))
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
