@@ -1,11 +1,11 @@
 import React from 'react';
-import { Quest } from './features/quest/Quest';
+import { Timer } from './features/timer/Timer';
 import './App.css';
 
 function App() {
   return (
     <div>
-      <Quest />
+      <Timer />
     </div>
   );
 }
