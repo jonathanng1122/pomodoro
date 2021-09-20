@@ -7,5 +7,12 @@ module.exports = {
     //calculates the start date, returns a date
     calculateStart: (startOfDay, timezoneOffset) => {
         return new Date();
+    },
+    /**
+     * Gets the next exact date 24 hours after the date inputted
+     * @param {Date} date 
+     */
+    getNextDate: (date) => {
+        return new Date(date).getTime() + 24*60*60*1000
     }
 }

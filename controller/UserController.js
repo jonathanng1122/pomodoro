@@ -5,5 +5,5 @@ module.exports = {
         return await User.findById(userId, (err, user) => {
             return user;
         })
-    }
+    },
 }

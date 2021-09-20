@@ -2,7 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const port = 5000 || process.env.PORT;
+
 const {MONGODB_URI} = require('./config.js')
+
+app.use(express.json()); // support json encoded bodies
+app.use(express.urlencoded({ extended: false })); // support encoded bodies
 
 app.use('/api/users', require("./routes/UserRoutes.js"))
 app.use('/api/intervals', require("./routes/IntervalRoutes.js"))
