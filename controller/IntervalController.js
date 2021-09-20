@@ -1,6 +1,19 @@
 const Interval = require('../models/IntervalModel');
 const { getNextDate } = require('../utilities/time');
 
+
+// some code for field verification
+// Object.keys(interval).forEach(key => {
+        //     if (key === 'topic' || key === 'comment' || key === 'start' || key === 'end' || key === 'isFinished' || key === 'userId') {
+        //         newInterval[key] = interval[key];
+        //     }
+        // })
+
+async function setDependentFieldsAndSave(interval) {
+    interval.isFinished = interval.start && interval.end && true || false;
+    return await interval.save();
+}
+
 module.exports = {
     getAllIntervals: async () => {
         return await Interval.find({});
@@ -23,13 +36,10 @@ module.exports = {
         });
     },
     addInterval: async (interval) => {
-        const newInterval = new Interval();
-        Object.keys(interval).forEach(key => {
-            if (key === 'topic' || key === 'comment' || key === 'start' || key === 'end' || key === 'isFinished' || key === 'userId') {
-                newInterval[key] = interval[key];
-            }
-        })
-        return await newInterval.save();
+        const newInterval = new Interval({...interval});
+        return await setDependentFieldsAndSave(newInterval);
+        
+        
     },
     /**
      * takes an interval with a interval.id value and updates the other values
@@ -40,7 +50,9 @@ module.exports = {
         if (interval && intervalId) {
             const filter = {id: interval.id}
             const update = {...interval}
-            return await Interval.findOneAndUpdate(filter, update);
+            const options = {new: true, multi: true}
+            const updatedInterval = await Interval.findOneAndUpdate(filter, update, options);
+            return await setDependentFieldsAndSave(updatedInterval);
         } else {
             throw Error('cant update interval')
         }

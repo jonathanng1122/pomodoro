@@ -19,7 +19,8 @@ const IntervalSchema = Schema({
     },
     isFinished: {
         type: Schema.Types.Boolean,
-        default: false
+        default: false,
+        required: true
     },
     userId: {
         type: Schema.Types.ObjectId,

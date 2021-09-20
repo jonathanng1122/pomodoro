@@ -22,10 +22,16 @@ router.get('/:id', async (req, res) => {
     return res.json({interval})
 })
 
+//posts a new resource
 router.post('/', async (req, res) => {
-    // const {start, end, isFinished, userId} = req.body;
-    console.log(req.body);
-    return res.json({interval:await addInterval(req.body)});
+    return res.json({interval: await addInterval(req.body)});
+})
+
+//updates an existing resource
+//params.id is interval id
+// req.body is interval values that you want to update
+router.post('/:id', async (req, res) => {
+    return res.json({interval: await updateInterval(req.params.id, req.body)});
 })
 
 
