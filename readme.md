@@ -6,6 +6,8 @@ Trying out yarn in the client react folder
 
 Note: If you need to change the pusher credentials, change 2 spots: './client/.env' and './config.js'
 
+# Technologies
+Using React, Redux, Typescript, Node, Express, MongoDB and Pusher.
 
 ## for config.js
 ```
