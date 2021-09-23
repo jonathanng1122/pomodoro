@@ -8,6 +8,8 @@ import {
     selectOldIntervals
 } from './timerSlice';
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import Pusher from 'pusher-js'
+import { pusherKey } from "../../config";
 
 export function Timer() {
     const total = useAppSelector(selectTotal);
@@ -23,12 +25,25 @@ export function Timer() {
             if (currentInterval) {
                 setCurrentLength(Date.now() - currentInterval.start);
             }
-        }, 300); // 300 milliseconds
-
+        }, 1); // 300 milliseconds
+        const pusher = new Pusher(pusherKey, {
+            cluster: 'us3'
+        });
+        const channel = pusher.subscribe('intervals');
+        channel.bind('inserted', (data: any) => {
+            console.log('client detects inserted event')
+            console.log(data);
+            if (currentInterval) {
+                dispatch(endTimer())
+            } else {
+                dispatch(startTimer())
+            }
+        })
         return () => {
             clearInterval(intervalId);
+            channel.unbind('inserted')
         }
-    }, [currentInterval]);
+    }, [currentInterval, dispatch]);
     return (
         <div>
             <button onClick={() => dispatch(startTimer())}>Start Timer</button>

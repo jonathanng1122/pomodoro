@@ -23,7 +23,7 @@ router.get('/:id', async (req, res) => {
 })
 
 //posts a new resource
-router.post('/', async (req, res) => {
+router.post('/new', async (req, res) => {
     return res.json({interval: await addInterval(req.body)});
 })
 
