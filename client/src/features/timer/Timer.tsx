@@ -10,6 +10,7 @@ import {
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import Pusher from 'pusher-js'
 import { pusherKey } from "../../config";
+import { getAllIntervals } from "./TimerAPI";
 
 export function Timer() {
     const total = useAppSelector(selectTotal);
@@ -52,6 +53,11 @@ export function Timer() {
                 setCurrentLength(0);
             }}>End Timer</button>
             <button onClick={() => dispatch(cancelTimer())}>Cancel Timer</button>
+            <button onClick={() => {
+                getAllIntervals().then(res => {
+                    console.log(res.data)
+                })
+            }}>Get all intervals</button>
             <h1>total: {total}</h1>
             {(() => {
                 return <div>

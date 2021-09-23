@@ -7,6 +7,8 @@ declare interface Task {
 
 //these numbers respresent time
 declare interface Interval {
+    _id?: string;
+    userId?: string;
     start: number;
     end?: number;
 }
