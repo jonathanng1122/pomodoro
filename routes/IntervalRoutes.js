@@ -8,12 +8,23 @@ const {
     deleteInterval,
     getAllIntervals
 } = require('../controller/IntervalController');
-
+const {getPreviousDate} = require('../utilities/time')
 /**
  * Gets all intervals
  */
 router.get('/', async (req, res) => {
     const interval = await getAllIntervals();
+    return res.json({interval})
+})
+
+//gets array of intervals in the last 24 hours
+router.get('/today', async (req, res) => {
+    const interval = await getIntervalsOn(getPreviousDate(time));
+    return res.json({interval})
+})
+// gets array of intervals 24 hours after time
+router.get('/day/:time', async (req, res) => {
+    const interval = await getIntervalsOn(time);
     return res.json({interval})
 })
 
