@@ -49,6 +49,9 @@ module.exports = {
     updateInterval: async (intervalId, interval) => {
         if (interval && intervalId) {
             const filter = {id: interval.id}
+            if (interval._id) {
+                delete interval._id
+            }
             const update = {...interval}
             const options = {new: true, multi: true}
             const updatedInterval = await Interval.findOneAndUpdate(filter, update, options);
