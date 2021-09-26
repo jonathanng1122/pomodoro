@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import {
     startTimerAsync,
     endTimerAsync,
-    cancelTimer,
+    // cancelTimer,
     selectTotal,
     getIntervalsTodayAsync,
     selectCurrentInterval,
@@ -77,7 +77,7 @@ export function Timer() {
                 }
                 setCurrentLength(0);
             }}>End Timer</button>
-            <button onClick={() => dispatch(cancelTimer())}>Cancel Timer</button>
+            {/* <button onClick={() => dispatch(cancelTimer())}>Cancel Timer</button> */}
             <h1>total: {total}</h1>
             {(() => {
                 return <div>
