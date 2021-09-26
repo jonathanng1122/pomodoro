@@ -1,5 +1,11 @@
 import { TimeState } from "./timerSlice"
 import _ from 'lodash'
+export const msToMin = (ms: number): number => {
+    return Math.floor(ms / 1000 / 60)
+}
+export const minToMs = (ms: number): number => {
+    return Math.ceil(ms * 1000 * 60)
+}
 /**
  * 
  * @param bareState 

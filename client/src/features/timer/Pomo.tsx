@@ -13,15 +13,10 @@ import {
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import Pusher from 'pusher-js'
 import { pusherKey } from "../../config";
-import { checkTimerEvent } from "./utilities";
-
-console.log('new pusher instance created, if you see this message multiple times, you are creating multiple connections... BAD')
-const pusher = new Pusher(pusherKey, {
-    cluster: 'us3'
-});
+import { checkTimerEvent, msToMin } from "./utilities";
 
 export function Timer() {
-    const total = useAppSelector(selectTotal);
+    const total: any = useAppSelector(selectTotal);
     const currentInterval = useAppSelector(selectCurrentInterval);
     const oldIntervals = useAppSelector(selectOldIntervals);
     // const status = useAppSelector(selectStatus);
@@ -30,21 +25,25 @@ export function Timer() {
     // const tasks = useAppSelector();
     const dispatch = useAppDispatch();
     useEffect(() => {
-        // Your code here
         dispatch(getIntervalsTodayAsync())
     }, [dispatch]);
 
-
-
     useEffect(() => {
-        const intervalId = setInterval(() => {
+        const setLength = () => {
             if (currentInterval) {
-                setCurrentLength(Date.now() - currentInterval.start)
+                setCurrentLength(msToMin(Math.floor(Date.now() - currentInterval.start)))
             } else if (currentLength !== 0) {
                 setCurrentLength(0)
             }
+        }
+        setLength();
+        const intervalId = setInterval(() => {
+            setLength();
+        }, 60 * 1000 / 10); // updates every minute
 
-        }, 1); // updates every 1 milliseconds
+        const pusher = new Pusher(pusherKey, {
+            cluster: 'us3'
+        });
 
         const channel = pusher.subscribe('intervals');
         channel.bind('inserted', (data: Interval) => {
@@ -63,36 +62,41 @@ export function Timer() {
         return () => {
             clearInterval(intervalId);
             channel.unbind()
+            pusher.unsubscribe("intervals")
         }
     }, [currentInterval, oldIntervals, currentLength, dispatch]);
     return (
         <div>
-            <button onClick={() => dispatch(startTimerAsync())}>Start Timer</button>
-            <button onClick={() => {
-                if (currentInterval) {
-                    dispatch(endTimerAsync(currentInterval))
-                } else {
-                    throw Error('Can not end a timer that has not started')
-                }
-                setCurrentLength(0);
-            }}>End Timer</button>
-            <h1>total: {total}</h1>
+            <h1>total for today: {msToMin(total)}</h1>
             {(() => {
-                return <div>
-                    currentLength: {currentLength}
-                    <div>start: {currentInterval ? currentInterval.start : 'null'}</div>
-                    <div>end: {currentInterval ? currentInterval.end : 'null'}</div>
-                </div>
+                if (currentInterval) {
+                    return <div>
+                        Minutes til end of Pomodoro: {95 - currentLength}
+                    </div>
+                }
             })()}
+            <button onClick={() => {
+                if (!currentInterval) {
+                    dispatch(startTimerAsync())
+                } else {
+                    dispatch(endTimerAsync(currentInterval))
+                    setCurrentLength(0);
+                }
+            }}>{!currentInterval ? 'Start' : 'End'}</button>
             {(() => {
                 return oldIntervals.map(interval => {
-                    const start = new Date(interval.start);
+                    const { start } = interval;
                     if (interval.end) {
-                        const end = new Date(interval.end);
-                        return <div key={start.toString()}>{start.getHours()}:{start.getMinutes()} to {end.getHours()}:{end.getMinutes()} </div>
-                    } else {
-                        return <div key={start.toString()}></div>
+                        const { end } = interval;
+                        const time = msToMin(end - start);
+                        //TODO: be able to select a task
+                        if (time > 60000) {
+                            return <div key={start}>
+                                {time} minutes doing TASK
+                            </div>
+                        }
                     }
+                    return <div key={start}></div>
                 }).reverse()
             })()}
         </div>
