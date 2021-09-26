@@ -1,7 +1,8 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "../../app/store"
 import { createNewInterval, getIntervalsToday } from "./TimerAPI"
-
+import { tidy } from "./utilities"
+import _ from 'lodash'
 
 export interface TimeState {
     currentInterval?: Interval;
@@ -39,7 +40,6 @@ export const updateTimerAsync = createAsyncThunk(
     'timer/updateTimerAsync',
     async (interval: Interval) => {
         const res = await createNewInterval(interval)
-        console.log(res.data.interval)
         return res.data
     }
 )
@@ -55,7 +55,6 @@ export const endTimerAsync = createAsyncThunk(
             newInterval.userId = interval.userId
         }
         const res = await createNewInterval(newInterval)
-        console.log(res.data.interval)
         return res.data
     }
 )
@@ -80,19 +79,52 @@ export const timerSlice = createSlice({
             const start = state.currentInterval.start;
             const end = Date.now();
             state.total = state.total + end - start;
-            const retiredInterval = {
-                start,
-                end
-            }
-            state.intervals = [...state.intervals, retiredInterval]
-            state.currentInterval = undefined;
-
+            tidy(state);
         },
         cancelTimer: (state) => {
             if (!state.currentInterval) {
                 throw Error('Cant cancel a timer that doesnt exist')
             }
             state.currentInterval = undefined
+        },
+        tidyTimer: (state) => {
+            tidy(state);
+        },
+        //updates only if detects a state change from pusher
+        updateTimerState: (state, action: PayloadAction<Interval>) => {
+            //returns true if done, and false if not
+            const updater = (intervalFromState: Interval, interval: Interval): boolean => {
+                // have fun with the bugs
+                if (_.isEqual(intervalFromState, interval)) {
+                    return true;
+                } else if (intervalFromState._id === interval._id) {
+                    intervalFromState = interval
+                    return true;
+                }
+                return false;
+            }
+            const interval = action.payload
+            if (state.currentInterval && updater(state.currentInterval, interval)) {
+                return;
+            }
+            for (let i = 0; i < state.intervals.length; i++) {
+                if (state.currentInterval && updater(state.intervals[i], interval)) {
+                    return;
+                }
+            }
+            if (interval.start && interval.end) {
+                state.total += interval.end - interval.start;
+                state.intervals = [...state.intervals, interval];
+                state.currentInterval = undefined;
+            } else if (!state.currentInterval) {
+                // couldn't find a match so will update the state
+                state.currentInterval = interval;
+            } else {
+                //moves the action.payload in front
+                //there may be bugs by doing this
+                state.intervals = [...state.intervals, state.currentInterval];
+                state.currentInterval = interval;
+            }
         }
     },
     extraReducers: builder => {
@@ -118,15 +150,7 @@ export const timerSlice = createSlice({
                 throw Error('Can not end timer due to an nonexisting currentInterval')
             }
             state.currentInterval = action.payload.interval
-            const { start, end } = state.currentInterval;
-            if (start && end) {
-                state.total = state.total + end - start;
-                const retiredInterval = {
-                    ...state.currentInterval
-                }
-                state.intervals = [...state.intervals, retiredInterval]
-            }
-            state.currentInterval = undefined;
+            tidy(state)
         }).addCase(getIntervalsTodayAsync.pending, (state) => {
             if (state.status === 'loading') {
                 throw Error('cant do anything if loading')
@@ -146,15 +170,12 @@ export const timerSlice = createSlice({
                 } else if (i === intervals.length - 1) {
                     state.currentInterval = intervals[i]
                 }
-                console.log(state)
             }
-
-
         })
     }
 })
 
-export const { startTimer, endTimer, cancelTimer } = timerSlice.actions;
+export const { startTimer, endTimer, cancelTimer, updateTimerState, tidyTimer } = timerSlice.actions;
 
 export const selectTotal = (state: RootState): Number => state.timer.total;
 export const selectStatus = (state: RootState): string => state.timer.status;

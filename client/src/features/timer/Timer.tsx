@@ -1,3 +1,4 @@
+//TODO: bug total changes when refreshing
 import React, { useState, useEffect } from "react";
 import {
     startTimerAsync,
@@ -7,19 +8,24 @@ import {
     getIntervalsTodayAsync,
     selectCurrentInterval,
     selectOldIntervals,
-    selectStatus
+    updateTimerState,
+    // selectStatus
 } from './timerSlice';
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import Pusher from 'pusher-js'
 import { pusherKey } from "../../config";
-import { getAllIntervals } from "./TimerAPI";
+import { checkTimerEvent } from "./utilities";
+
+console.log('new pusher instance created, if you see this message multiple times, you are creating multiple connections... BAD')
+const pusher = new Pusher(pusherKey, {
+    cluster: 'us3'
+});
 
 export function Timer() {
     const total = useAppSelector(selectTotal);
     const currentInterval = useAppSelector(selectCurrentInterval);
     const oldIntervals = useAppSelector(selectOldIntervals);
-    const status = useAppSelector(selectStatus);
-    //TODO: currentLength
+    // const status = useAppSelector(selectStatus);
     const [currentLength, setCurrentLength] = useState(0);
 
     // const tasks = useAppSelector();
@@ -27,31 +33,39 @@ export function Timer() {
     useEffect(() => {
         // Your code here
         dispatch(getIntervalsTodayAsync())
-    }, []);
+    }, [dispatch]);
+
+
+
     useEffect(() => {
         const intervalId = setInterval(() => {
             if (currentInterval) {
-                setCurrentLength(Date.now() - currentInterval.start);
+                setCurrentLength(Date.now() - currentInterval.start)
+            } else if (currentLength !== 0) {
+                setCurrentLength(0)
             }
+
         }, 1); // updates every 1 milliseconds
-        // const pusher = new Pusher(pusherKey, {
-        //     cluster: 'us3'
-        // });
-        // const channel = pusher.subscribe('intervals');
-        // channel.bind('inserted', (data: any) => {
-        //     console.log('client detects inserted event')
-        //     console.log(data);
-        //     if (currentInterval) {
-        //         dispatch(endTimer())
-        //     } else {
-        //         dispatch(startTimerAsync())
-        //     }
-        // })
+
+        const channel = pusher.subscribe('intervals');
+        channel.bind('inserted', (data: Interval) => {
+            //TODO: make changes based on userId also
+            console.log('detecting insert event')
+            console.log({
+                currentInterval,
+                oldIntervals,
+                data
+            })
+            if (!checkTimerEvent({ currentInterval: currentInterval, intervals: oldIntervals }, data)) {
+                console.log('timer state being updated')
+                dispatch(updateTimerState(data))
+            }
+        })
         return () => {
             clearInterval(intervalId);
-            // channel.unbind('inserted')
+            channel.unbind()
         }
-    }, [currentInterval, dispatch]);
+    }, [currentInterval, oldIntervals, currentLength, dispatch]);
     return (
         <div>
             <button onClick={() => dispatch(startTimerAsync())}>Start Timer</button>
@@ -64,11 +78,6 @@ export function Timer() {
                 setCurrentLength(0);
             }}>End Timer</button>
             <button onClick={() => dispatch(cancelTimer())}>Cancel Timer</button>
-            <button onClick={() => {
-                getAllIntervals().then(res => {
-                    console.log(res.data)
-                })
-            }}>Get all intervals</button>
             <h1>total: {total}</h1>
             {(() => {
                 return <div>

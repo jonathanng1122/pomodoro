@@ -52,6 +52,21 @@ const minutesToTimeString = (minutes) => {
     return formatZeros(hours) + ":" + formatZeros(remainingMinutes)
 }
 
+/**
+ * converts mongo interval date string into date number
+ * @param {*} interval 
+ */
+const intervalAdapter = (interval) => {
+    const newInterval = interval.toObject();
+    if (interval.start) {
+        newInterval.start = new Date(interval.start).getTime()
+    }
+    if (interval.end) {
+        newInterval.end = new Date(interval.end).getTime()
+    }
+    return newInterval
+}
+
 //get Date
 //add timezoneoffset to Date
 //save month, day, year
@@ -63,5 +78,6 @@ module.exports = {
     calculateStart,
     getNextDate,
     getPreviousDate,
-    getStartOfDay
+    getStartOfDay,
+    intervalAdapter
 }

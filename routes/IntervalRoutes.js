@@ -8,22 +8,7 @@ const {
     deleteInterval,
     getAllIntervals
 } = require('../controller/IntervalController');
-const {getPreviousDate, getStartOfDay} = require('../utilities/time')
-
-/**
- * converts mongo interval date string into date number
- * @param {*} interval 
- */
-const intervalAdapter = (interval) => {
-    const newInterval = interval.toObject();
-    if (interval.start) {
-        newInterval.start = new Date(interval.start).getTime()
-    }
-    if (interval.end) {
-        newInterval.end = new Date(interval.end).getTime()
-    }
-    return newInterval
-}
+const {getPreviousDate, getStartOfDay, intervalAdapter} = require('../utilities/time')
 
 /**
  * converts an array of mongo interval date strings into date numbers
