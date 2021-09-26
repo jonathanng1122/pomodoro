@@ -15,7 +15,6 @@ const {getPreviousDate, getStartOfDay} = require('../utilities/time')
  * @param {*} interval 
  */
 const intervalAdapter = (interval) => {
-    console.log(interval)
     const newInterval = interval.toObject();
     if (interval.start) {
         newInterval.start = new Date(interval.start).getTime()

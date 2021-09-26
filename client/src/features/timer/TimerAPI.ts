@@ -16,7 +16,7 @@ export function getInterval(id: string) {
 export function getIntervalsToday() {
     const d = new Date();
     const date = getStartOfDay(d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getTimezoneOffset(), STARTOFDAYOFFSET)
-    return new Promise<{ data: { interval: Interval } }>((resolve, reject) => {
+    return new Promise<{ data: { interval: Array<Interval> } }>((resolve, reject) => {
         axios.get(databaseUrl + "/api/intervals/day/" + date.getTime()).then(resolve).catch(reject)
     });
 }

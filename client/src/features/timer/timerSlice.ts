@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { RootState } from "../../app/store"
-import { createNewInterval } from "./TimerAPI"
+import { createNewInterval, getIntervalsToday } from "./TimerAPI"
 
 
 export interface TimeState {
@@ -15,6 +15,14 @@ const initialState: TimeState = {
     total: 0,
     status: 'idle'
 }
+
+export const getIntervalsTodayAsync = createAsyncThunk(
+    'timer/getIntervalsToday',
+    async () => {
+        const res = await getIntervalsToday()
+        return res.data
+    }
+)
 
 export const startTimerAsync = createAsyncThunk(
     'timer/startTimerAsync',
@@ -119,6 +127,29 @@ export const timerSlice = createSlice({
                 state.intervals = [...state.intervals, retiredInterval]
             }
             state.currentInterval = undefined;
+        }).addCase(getIntervalsTodayAsync.pending, (state) => {
+            if (state.status === 'loading') {
+                throw Error('cant do anything if loading')
+            }
+            state.status = 'loading'
+        }).addCase(getIntervalsTodayAsync.fulfilled, (state, action) => {
+            state.status = 'idle'
+            state.total = 0;
+            state.intervals = []
+            const intervals = action.payload.interval;
+            //sets up the intial state based on a given array of intervals
+            for (let i = 0; i < intervals.length; i++) {
+                let interval = intervals[i];
+                if (interval.end && interval.start) {
+                    state.total += interval.end - interval.start
+                    state.intervals.push(interval)
+                } else if (i === intervals.length - 1) {
+                    state.currentInterval = intervals[i]
+                }
+                console.log(state)
+            }
+
+
         })
     }
 })

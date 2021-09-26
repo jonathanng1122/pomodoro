@@ -4,6 +4,7 @@ import {
     endTimerAsync,
     cancelTimer,
     selectTotal,
+    getIntervalsTodayAsync,
     selectCurrentInterval,
     selectOldIntervals,
     selectStatus
@@ -24,11 +25,15 @@ export function Timer() {
     // const tasks = useAppSelector();
     const dispatch = useAppDispatch();
     useEffect(() => {
+        // Your code here
+        dispatch(getIntervalsTodayAsync())
+    }, []);
+    useEffect(() => {
         const intervalId = setInterval(() => {
             if (currentInterval) {
                 setCurrentLength(Date.now() - currentInterval.start);
             }
-        }, 1); // 300 milliseconds
+        }, 1); // updates every 1 milliseconds
         // const pusher = new Pusher(pusherKey, {
         //     cluster: 'us3'
         // });
