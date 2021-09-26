@@ -1,18 +1,56 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { RootState } from "../../app/store"
+import { createNewInterval } from "./TimerAPI"
 
 
 export interface TimeState {
     currentInterval?: Interval;
     intervals: Array<Interval>;
     total: number;
+    status: 'loading' | 'idle';
 }
 
 const initialState: TimeState = {
     intervals: [],
-    total: 0
+    total: 0,
+    status: 'idle'
 }
 
+export const startTimerAsync = createAsyncThunk(
+    'timer/startTimerAsync',
+    async () => {
+        const interval: Interval = {
+            userId: '612b111b881930941e73e029',
+            start: Date.now()
+        }
+        const res = await createNewInterval(interval)
+        return res.data
+    }
+)
+export const updateTimerAsync = createAsyncThunk(
+    'timer/updateTimerAsync',
+    async (interval: Interval) => {
+        const res = await createNewInterval(interval)
+        console.log(res.data.interval)
+        return res.data
+    }
+)
+
+export const endTimerAsync = createAsyncThunk(
+    'timer/endTimerAsync',
+    async (interval: Interval) => {
+        const newInterval: Interval = {
+            start: interval.start,
+            end: Date.now()
+        }
+        if (interval.userId) {
+            newInterval.userId = interval.userId
+        }
+        const res = await createNewInterval(newInterval)
+        console.log(res.data.interval)
+        return res.data
+    }
+)
 
 export const timerSlice = createSlice({
     name: 'timer',
@@ -48,12 +86,47 @@ export const timerSlice = createSlice({
             }
             state.currentInterval = undefined
         }
+    },
+    extraReducers: builder => {
+        builder.addCase(startTimerAsync.pending, (state) => {
+            if (state.status === 'loading') {
+                throw Error('cant do anything if loading')
+            }
+            state.status = 'loading'
+        }).addCase(startTimerAsync.fulfilled, (state, action) => {
+            state.status = 'idle'
+            if (state.currentInterval) {
+                throw Error('Can not start timer due to an existing interval already started')
+            }
+            state.currentInterval = action.payload.interval
+        }).addCase(endTimerAsync.pending, (state) => {
+            if (state.status === 'loading') {
+                throw Error('cant do anything if loading')
+            }
+            state.status = 'loading'
+        }).addCase(endTimerAsync.fulfilled, (state, action) => {
+            state.status = 'idle'
+            if (!state.currentInterval) {
+                throw Error('Can not end timer due to an nonexisting currentInterval')
+            }
+            state.currentInterval = action.payload.interval
+            const { start, end } = state.currentInterval;
+            if (start && end) {
+                state.total = state.total + end - start;
+                const retiredInterval = {
+                    ...state.currentInterval
+                }
+                state.intervals = [...state.intervals, retiredInterval]
+            }
+            state.currentInterval = undefined;
+        })
     }
 })
 
 export const { startTimer, endTimer, cancelTimer } = timerSlice.actions;
 
 export const selectTotal = (state: RootState): Number => state.timer.total;
+export const selectStatus = (state: RootState): string => state.timer.status;
 export const selectCurrentInterval = (state: RootState): Interval | undefined => state.timer.currentInterval;
 export const selectOldIntervals = (state: RootState): Array<Interval> => state.timer.intervals;
 export const selectSpecificInterval = (i: number) => (state: RootState): Interval => state.timer.intervals[i];

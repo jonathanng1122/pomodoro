@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-    startTimer,
-    endTimer,
+    startTimerAsync,
+    endTimerAsync,
     cancelTimer,
     selectTotal,
     selectCurrentInterval,
-    selectOldIntervals
+    selectOldIntervals,
+    selectStatus
 } from './timerSlice';
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import Pusher from 'pusher-js'
@@ -16,6 +17,7 @@ export function Timer() {
     const total = useAppSelector(selectTotal);
     const currentInterval = useAppSelector(selectCurrentInterval);
     const oldIntervals = useAppSelector(selectOldIntervals);
+    const status = useAppSelector(selectStatus);
     //TODO: currentLength
     const [currentLength, setCurrentLength] = useState(0);
 
@@ -27,29 +29,33 @@ export function Timer() {
                 setCurrentLength(Date.now() - currentInterval.start);
             }
         }, 1); // 300 milliseconds
-        const pusher = new Pusher(pusherKey, {
-            cluster: 'us3'
-        });
-        const channel = pusher.subscribe('intervals');
-        channel.bind('inserted', (data: any) => {
-            console.log('client detects inserted event')
-            console.log(data);
-            if (currentInterval) {
-                dispatch(endTimer())
-            } else {
-                dispatch(startTimer())
-            }
-        })
+        // const pusher = new Pusher(pusherKey, {
+        //     cluster: 'us3'
+        // });
+        // const channel = pusher.subscribe('intervals');
+        // channel.bind('inserted', (data: any) => {
+        //     console.log('client detects inserted event')
+        //     console.log(data);
+        //     if (currentInterval) {
+        //         dispatch(endTimer())
+        //     } else {
+        //         dispatch(startTimerAsync())
+        //     }
+        // })
         return () => {
             clearInterval(intervalId);
-            channel.unbind('inserted')
+            // channel.unbind('inserted')
         }
     }, [currentInterval, dispatch]);
     return (
         <div>
-            <button onClick={() => dispatch(startTimer())}>Start Timer</button>
+            <button onClick={() => dispatch(startTimerAsync())}>Start Timer</button>
             <button onClick={() => {
-                dispatch(endTimer())
+                if (currentInterval) {
+                    dispatch(endTimerAsync(currentInterval))
+                } else {
+                    throw Error('Can not end a timer that has not started')
+                }
                 setCurrentLength(0);
             }}>End Timer</button>
             <button onClick={() => dispatch(cancelTimer())}>Cancel Timer</button>
