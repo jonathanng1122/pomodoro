@@ -24,7 +24,7 @@ module.exports = {
     /**
      * 
      * @param {Date} date 
-     * @returns intervals between date and 24 hours after
+     * @returns intervals on date and 24 hours after
      */
     getIntervalsOn: async (date) => {
         const nextDate = getNextDate(date);

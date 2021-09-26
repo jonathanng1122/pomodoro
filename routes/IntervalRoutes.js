@@ -8,7 +8,7 @@ const {
     deleteInterval,
     getAllIntervals
 } = require('../controller/IntervalController');
-const {getPreviousDate} = require('../utilities/time')
+const {getPreviousDate, getStartOfDay} = require('../utilities/time')
 /**
  * Gets all intervals
  */
@@ -17,13 +17,25 @@ router.get('/', async (req, res) => {
     return res.json({interval})
 })
 
-//gets array of intervals in the last 24 hours
-router.get('/today', async (req, res) => {
-    const interval = await getIntervalsOn(getPreviousDate(time));
+// //gets array of intervals in the last 24 hours
+// router.get('/today/:timezoneOffset/:year/:month/:date', async (req, res) => {
+//     //gets the of today which if it's 9/12/2021 xx:xx time
+//     //begin = 9/12/2021 12:00 AM + any startOfDayOffset (in config.js)
+//     const date = new Date();
+//     const begin = getStartOfDay(date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getTimezoneOffset(), 0);
+//     //interval will be all of the intervals after
+//     //between "9/12/2021 12:00 AM + any startOfDayOffset" and
+//     //        "9/13/2021 12:00 AM + any startOfDayOffset"
+//     const interval = await getIntervalsOn(begin);
+//     return res.json({interval})
+// })
+router.get('/recent24hours', async (req, res) => {
+    const interval = await getIntervalsOn(getPreviousDate(new Date()));
     return res.json({interval})
 })
 // gets array of intervals 24 hours after time
 router.get('/day/:time', async (req, res) => {
+    const time = parseInt(req.params.time)
     const interval = await getIntervalsOn(time);
     return res.json({interval})
 })

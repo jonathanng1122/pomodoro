@@ -2,7 +2,8 @@ import {
     getAllIntervals,
     getInterval,
     createNewInterval,
-    updateInterval
+    updateInterval,
+    getIntervalsToday
 } from './TimerAPI';
 
 it('gets all intervals', async () => {
@@ -13,7 +14,7 @@ it('gets all intervals', async () => {
 })
 
 
-it('creates a new interval and getting it', async () => {
+it('creates, updating and getting a new interval', async () => {
     expect.assertions(3);
     const msec = new Date().getTime();
     const interval: Interval = {
@@ -32,4 +33,9 @@ it('creates a new interval and getting it', async () => {
     }
 })
 
-//TODO: create test for update interval
+
+it('gets todays intervals', async () => {
+    expect.assertions(1);
+    const res = await getIntervalsToday();
+    return expect(typeof res.data.interval).toEqual('object');
+})
