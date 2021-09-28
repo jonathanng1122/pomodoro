@@ -1,13 +1,26 @@
 # Remain
+Sounds like a game, this is a prodo app that measures the time you have left. 
 
-Sounds like a game, this is a prodo app that measures the time you have left.
+ - realtime (syncs across multiple devices)
+ - live updates
+ - user authentication
+ - mobile friendly
+ - PWA
 
-Trying out yarn in the client react folder
-
-Note: If you need to change the pusher credentials, change 2 spots: './client/.env' and './config.js'
 
 # Technologies
 Using React, Redux, Typescript, Node, Express, MongoDB and Pusher.
+
+
+# Setting up this project
+## Installing dependencies
+ 1. `npm install`
+ 2. `cd client && yarn install && cd ../`
+## Starting the project
+ 3. `npm start`
+ 4. `cd client && yarn start`
+
+Note: If you need to change the pusher credentials, change 2 spots: './client/.env' and './config.js' (in fact you need these config files to run this app)
 
 ## for config.js
 ```
@@ -27,11 +40,9 @@ PUSHER_KEY=pusherkeyhere
 
 # Random Notes
 
-ui
+set pomodoro timer, save it in the user model and other settings
+pusher with other users
 auth
 deploy
-
-
-- secure
-- multiple device sync
-- live updates
+^====MVP====^
+charts and data
