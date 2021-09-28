@@ -23,3 +23,15 @@ Using React, Redux, Typescript, Node, Express, MongoDB and Pusher.
 
 ## for .env
 PUSHER_KEY=pusherkeyhere
+
+
+# Random Notes
+
+ui
+auth
+deploy
+
+
+- secure
+- multiple device sync
+- live updates
