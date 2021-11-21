@@ -1,5 +1,6 @@
-# Remain
-Sounds like a game, this is a prodo app that measures the time you have left. 
+# Pomodoro
+
+Pomodoro is a time studying tool. This has some cool advance features integrated into it like live updates across multiple devices.
 
  - realtime (syncs across multiple devices)
  - live updates
